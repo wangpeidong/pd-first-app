@@ -5,10 +5,12 @@ from flask_sqlalchemy import SQLAlchemy
 from os import environ
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL", "postgresql://postgres:12345@localhost:5432/bookstore")
 #app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://iwwbqrkihpmcuv:bc3d652fa7db25b52de75659f3c321082e35bd99394a8e18d53ff3c54fe524f7@ec2-18-235-97-230.compute-1.amazonaws.com:5432/dbofd7nvd6f68d"
+app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL", "postgresql://postgres:12345@localhost:5432/bookstore")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
+app.config["JSON_AS_ASCII"] = False
+
 db = SQLAlchemy(app)
 
 @app.route("/")
