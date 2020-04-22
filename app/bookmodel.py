@@ -25,8 +25,19 @@ class BookModel(db.Model):
             "author": self.author,
             "published": self.published
         }
-    
-db.create_all()
-db.session.commit()
 
+from sqlalchemy import exc
+if __name__ == "__main__":  
+    try:
+        db.create_all()
+        db.session.commit()
+    except exc.InvalidRequestError as e:
+        db.session.rollback()        
+        print(f"Exception: {str(e)}")      
+    except exc.SQLAlchemyError as e:
+        db.session.rollback()        
+        print(f"Exception: {str(e)}")
+
+#run from parent folder
+#python -m app.bookmodel
 print("---end of bookmodel---")
