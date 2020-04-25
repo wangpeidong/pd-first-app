@@ -27,6 +27,7 @@ class BookModel(db.Model):
         }
 
 from sqlalchemy import exc
+import sys
 if __name__ == "__main__":  
     try:
         db.create_all()
@@ -37,6 +38,9 @@ if __name__ == "__main__":
     except exc.SQLAlchemyError as e:
         db.session.rollback()        
         print(f"Exception: {str(e)}")
+    except:
+        ex_info = sys.exc_info()
+        print(f"Error: {ex_info[0]}")
 
 #run from parent folder
 #python -m app.bookmodel
