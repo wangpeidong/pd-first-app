@@ -4,6 +4,9 @@ from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
 
+import bs4 as bs
+import urllib.request
+
 app = Flask(__name__)
 #app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://iwwbqrkihpmcuv:bc3d652fa7db25b52de75659f3c321082e35bd99394a8e18d53ff3c54fe524f7@ec2-18-235-97-230.compute-1.amazonaws.com:5432/dbofd7nvd6f68d"
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL", "postgresql://postgres:12345@localhost:5432/bookstore")
@@ -13,9 +16,17 @@ app.config["JSON_AS_ASCII"] = False
 
 db = SQLAlchemy(app)
 
-@app.route("/")
+@app.route("/", methods = ["GET", "POST"])
 def home_view():
-    return "<h1>Welcome to PD-First-App</h1>"
+    if request.method == "POST":
+        url = request.form.get("url")
+        try:
+            source = urllib.request.urlopen(url).read()
+            soup = bs.BeautifulSoup(source, 'lxml')
+            return soup.get_text()
+        except Exception as e:
+            return f'exception: {str(e)}'
+    return render_template("geturl.html")
     
 @app.route("/name/<name>")
 def get_book_name(name):
