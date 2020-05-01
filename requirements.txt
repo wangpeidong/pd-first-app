@@ -5,3 +5,4 @@ psycopg2
 gunicorn
 beautifulsoup4
 urllib3
+lxml
