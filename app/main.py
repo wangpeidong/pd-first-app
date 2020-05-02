@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 def homepage():
     return render_template("main.html")
 
-@app.route("/login/", methods = ["POST"])
+@app.route("/login", methods = ["POST"])
 def handle_login():
     if request.method == "POST":
         username = request.form.get("username")
