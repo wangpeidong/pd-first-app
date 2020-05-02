@@ -16,8 +16,12 @@ app.config["JSON_AS_ASCII"] = False
 
 db = SQLAlchemy(app)
 
-@app.route("/", methods = ["GET", "POST"])
+@app.route("/")
 def home_view():
+    return render_template("main.html")
+
+@app.route("/geturl/", methods = ["GET", "POST"])
+def get_url():
     if request.method == "POST":
         url = request.form.get("url")
         try:
@@ -32,7 +36,7 @@ def home_view():
 def get_book_name(name):
     return f"<h1>Name: {name}</h1>"
     
-@app.route("/details")
+@app.route("/details/")
 def get_book_details(): 
     author = request.args.get("author")
     published = request.args.get("published")
@@ -40,7 +44,7 @@ def get_book_details():
     
 from app.bookmodel import BookModel
 
-@app.route("/add")
+@app.route("/add/")
 def add_book():
     name = request.args.get("name")
     author = request.args.get("author")
@@ -57,7 +61,7 @@ def add_book():
     except Exception as e:
         return str(e)
         
-@app.route("/getall")
+@app.route("/getall/")
 def get_all():
     try:
         books = BookModel.query.all()
@@ -73,7 +77,7 @@ def get_by_id(id_):
     except Exception as e:
         return str(e)
         
-@app.route("/add/form", methods = ["GET", "POST"])
+@app.route("/add/form/", methods = ["GET", "POST"])
 def add_book_form():
     if request.method == "POST":
         name = request.form.get("name")
@@ -92,4 +96,7 @@ def add_book_form():
             return str(e)
     return render_template("getinput.html")
     
+if __name__ == "__main__":
+    app.run(debug = True)
+
 print("---end of main---")    
