@@ -16,9 +16,21 @@ app.config["JSON_AS_ASCII"] = False
 
 db = SQLAlchemy(app)
 
-@app.route("/")
-def home_view():
+@app.route("/", methods = ["GET", "POST"])
+def homepage():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        print(f"username: {username} password: {password}")
     return render_template("main.html")
+
+@app.route("/dashboard/")
+def dashboard():
+    return render_template("dashboard.html")
+
+@app.route("/support/")
+def support():
+    return render_template("support.html")
 
 @app.route("/geturl/", methods = ["GET", "POST"])
 def get_url():
