@@ -1,11 +1,12 @@
 print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__package__):<20}")
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, flash
 
 import bs4 as bs
 import urllib.request
 
 app = Flask(__name__)
+app.secret_key = b'!@#$%^&*()'
 
 @app.route("/")
 def homepage():
@@ -25,7 +26,12 @@ def dashboard():
 
 @app.route("/support/")
 def support():
-    return render_template("support.html")
+    try:
+        flash("We need your support !")
+        flash("The world needs your support !")
+        return render_template("support.html")
+    except Exception as e:
+        return render_template("404.html", exception = e)
 
 @app.route("/geturl/", methods = ["GET", "POST"])
 def get_url():

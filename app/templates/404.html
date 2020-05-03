@@ -3,11 +3,13 @@
 {% block body %}
 
 <p>
-	{% if exception %}
+	{% if exception and exception.code %}
 		<h1> {{ exception.code }} </h1>
 		{{ exception.name }}
 		-
 		{{ exception.description }}
+	{% else %}
+		{{ exception }}
 	{% endif %}
 </p>
 
