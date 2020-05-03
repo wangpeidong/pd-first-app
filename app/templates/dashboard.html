@@ -14,9 +14,21 @@
 
   <!-- Tab panes -->
   <div class="tab-content" id="myTabContent">
-    <div role="tabpanel" class="tab-pane fade show active" id="basic" aria-labelledby="basic-tab">Basic Stuff</div>
-    <div role="tabpanel" class="tab-pane fade" id="wdev" aria-labelledby="wdev-tab">Web Development</div>
-    <div role="tabpanel" class="tab-pane fade" id="dan" aria-labelledby="dan-tab">Data analysis!#Q$@!#</div>
+    <div role="tabpanel" class="tab-pane fade show active" id="basic" aria-labelledby="basic-tab">
+      <ul>
+        {% for t in topic_dict["Basic"] %}
+          <li> Book <span style="color:blue">{{ t[0] }}</span> written by <span style="color:blue">{{ t[1] }}</span> published on <span style="color:blue">{{ t[2] }}</span> </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div role="tabpanel" class="tab-pane fade" id="wdev" aria-labelledby="wdev-tab">Web Development
+
+    </div>
+
+    <div role="tabpanel" class="tab-pane fade" id="dan" aria-labelledby="dan-tab">Data analysis!#Q$@!#
+
+    </div>
   </div>
 
 </div>

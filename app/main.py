@@ -1,12 +1,15 @@
 print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__package__):<20}")
 
 from flask import Flask, request, jsonify, render_template, flash
-
 import bs4 as bs
 import urllib.request
 
 app = Flask(__name__)
 app.secret_key = b'!@#$%^&*()'
+
+# This import must be after app instance, because
+# the BookModel imports app.
+from app.bookmodel import BookModel
 
 @app.route("/")
 def homepage():
@@ -22,7 +25,15 @@ def handle_login():
 
 @app.route("/dashboard/")
 def dashboard():
-    return render_template("dashboard.html")
+    try:
+        topic_dict = {"Basic": [], "Web Dev": []}
+        books = BookModel.query.all()
+        for book in books:
+            topic_dict["Basic"].append([book.name, book.author, book.published])
+
+        return render_template("dashboard.html", topic_dict = topic_dict)
+    except Exception as e:
+        return render_template("404.html", exception = e)
 
 @app.route("/support/")
 def support():
@@ -45,8 +56,6 @@ def get_url():
             return f'exception: {str(e)}'
     return render_template("geturl.html")
     
-from app.bookmodel import BookModel
-
 @app.route("/addbook/")
 def add_book():
     name = request.args.get("name")
