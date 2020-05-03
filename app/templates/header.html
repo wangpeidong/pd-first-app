@@ -42,9 +42,10 @@
 			      </div>
 				  <form action="/login" class="form-block" method="post">
 			      	<div class="modal-body">
-						<input type="text" class="form-control" placeholder="Username" name="username" value="">
-						<br>
-						<input type="password" class="form-control" placeholder="Password" name="password" value="">
+			      		<dl>
+							<dd><input type="text" class="form-control" placeholder="Username" name="username" value=""></dd>
+							<dd><input type="password" class="form-control" placeholder="Password" name="password" value=""></dd>
+						</dl>
 			      	</div>
 			      	<div class="modal-footer">
 			        	<button type="submit" onClick="form_submit()" class="btn btn-primary">Submit</button>
@@ -69,23 +70,23 @@
 			          <span aria-hidden="true">&times;</span>
 			        </button>
 			      </div>
-				  <form method=post action="/register">
+				  <form method=post action="/register" oninput='confirm.setCustomValidity(confirm.value != password.value ? "Passwords do not match." : "")'>
 			      	<div class="modal-body">
 					  <dl>
-						  <dt><label for="username">Username</label>
-						  <dd><input id="username" name="username" type="text" value=""></dd>
-						  <dt><label for="email">Email Address</label>
-						  <dd><input id="email" name="email" type="text" value=""></dd>
-						  <dt><label for="password">New Password</label>
-						  <dd><input id="password" name="password" type="password" value=""></dd>
-						  <dt><label for="confirm">Repeat Password</label>
-						  <dd><input id="confirm" name="confirm" type="password" value=""></dd>
+						  <dd><input class="form-control" id="username" name="username" type="text" placeholder="user name" minlength="3" maxlength="30" required></dd>
+						  <dd><input class="form-control" id="email" name="email" type="text" placeholder="email address" minlength="5" maxlength="30" required></dd>
+						  <dd><input class="form-control" id="password" name="password" type="password" placeholder="password" required></dd>
+						  <dd><input class="form-control" id="confirm" name="confirm" type="password" placeholder="re-enter password" required></dd>
 					  </dl>
 		      		</div>
 			      	<div class="modal-footer">
-				      	<label for="accept_tos">I accept the <a href="/about/tos" target="blank">Terms of Service</a> and <a href="/about/privacy-policy" target="blank">Privacy Notice</a></label>
-						<input id="accept_tos" name="accept_tos" type="checkbox" value="y">
-				        <button type="submit" onClick="form_submit()" class="btn btn-secondary">Submit</button>
+					  <div class="form-group">
+					    <div class="form-check">			      		
+							<input class="form-check-input" id="accept_tos" name="accept_tos" type="checkbox" value="y" required>
+					      	<label class="form-check-label" for="accept_tos">I accept the <a href="/about/tos" target="blank">Terms of Service</a> and <a href="/about/privacy-policy" target="blank">Privacy Notice</a></label>
+						</div>
+					  </div>
+				      <button type="submit" onClick="form_submit()" class="btn btn-outline-primary">Submit</button>
 			      	</div>
 				  </form>
 			    </div>
