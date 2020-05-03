@@ -1,9 +1,11 @@
 print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__package__):<20}")
 
-from .main import db
+from .dbm import db, create_all_tables
 
 class BookModel(db.Model):
     __tablename__ = "books"
+    
+    db = db
     
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String())
@@ -26,22 +28,9 @@ class BookModel(db.Model):
             "published": self.published
         }
 
-from sqlalchemy import exc
-import sys
 if __name__ == "__main__":  
-    try:
-        db.create_all()
-        db.session.commit()
-    except exc.InvalidRequestError as e:
-        db.session.rollback()        
-        print(f"Exception: {str(e)}")      
-    except exc.SQLAlchemyError as e:
-        db.session.rollback()        
-        print(f"Exception: {str(e)}")
-    except:
-        ex_info = sys.exc_info()
-        print(f"Error: {ex_info[0]}")
+    create_all_tables()
 
 #run from parent folder
 #python -m app.bookmodel
-print("---end of bookmodel---")
+print(f"---end of {__name__}---")
