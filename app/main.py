@@ -3,13 +3,15 @@ print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__p
 from flask import Flask, request, jsonify, render_template, flash
 import bs4 as bs
 import urllib.request
+import gc
 
 app = Flask(__name__)
 app.secret_key = b'!@#$%^&*()'
 
-# This import must be after app instance, because
-# the BookModel imports app.
-from app.bookmodel import BookModel
+from .dbm import connect_db
+connect_db(app)
+
+from .bookmodel import BookModel
 
 @app.route("/")
 def homepage():
@@ -28,6 +30,7 @@ def dashboard():
     try:
         topic_dict = {"Basic": [], "Web Dev": []}
         books = BookModel.query.all()
+        gc.collect()
         for book in books:
             topic_dict["Basic"].append([book.name, book.author, book.published])
 
@@ -67,6 +70,7 @@ def add_book():
 def get_all_book():
     try:
         books = BookModel.query.all()
+        gc.collect()
         return jsonify([b.serialize() for b in books])
     except Exception as e:
         return str(e)
@@ -75,6 +79,7 @@ def get_all_book():
 def get_by_id(id_):
     try:
         book = BookModel.query.filter_by(id = id_).first()
+        gc.collect()
         return jsonify(book.serialize())
     except Exception as e:
         return str(e)
@@ -97,6 +102,7 @@ def add_book_to_db(name, author, published):
         )
         book.db.session.add(book)
         book.db.session.commit()
+        gc.collect()
         return f"<h1>Book {name} added, Id {book.id}</h1>"
     except Exception as e:
         return str(e)

@@ -5,15 +5,17 @@ from sqlalchemy import exc
 from os import environ
 import sys
 
-from .main import app
+db = None
 
-#app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://iwwbqrkihpmcuv:bc3d652fa7db25b52de75659f3c321082e35bd99394a8e18d53ff3c54fe524f7@ec2-18-235-97-230.compute-1.amazonaws.com:5432/dbofd7nvd6f68d"
-app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL", "postgresql://postgres:12345@localhost:5432/bookstore")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
-app.config["JSON_AS_ASCII"] = False
-
-db = SQLAlchemy(app)
+def connect_db(app):
+	#app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://iwwbqrkihpmcuv:bc3d652fa7db25b52de75659f3c321082e35bd99394a8e18d53ff3c54fe524f7@ec2-18-235-97-230.compute-1.amazonaws.com:5432/dbofd7nvd6f68d"
+	app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL", "postgresql://postgres:12345@localhost:5432/bookstore")
+	app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+	app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
+	app.config["JSON_AS_ASCII"] = False
+	global db
+	db = SQLAlchemy(app)
+	return db
 
 def create_all_tables():
     try:
@@ -31,5 +33,5 @@ def create_all_tables():
 
 if __name__ == "__main__":
 	pass
-    
+
 print(f"---end of {__name__} ---")    
