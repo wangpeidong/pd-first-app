@@ -6,3 +6,4 @@ gunicorn
 beautifulsoup4
 urllib3
 lxml
+passlib
