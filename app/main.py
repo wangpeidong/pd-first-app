@@ -1,6 +1,7 @@
 print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__package__):<20}")
 
-from flask import Flask, request, jsonify, render_template, flash
+from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session
+from passlib.hash import sha256_crypt
 import bs4 as bs
 import urllib.request
 import gc
@@ -12,14 +13,29 @@ from .dbm import connect_db
 connect_db(app)
 
 from .bookmodel import BookModel
+from .usermodel import UserModel
 
 @app.route("/")
 def homepage():
     return render_template("main.html")
 
+@app.route("/register", methods = ["POST"])
+def register():
+    try:
+        if request.form:
+            name = request.form.get("username")
+            email = request.form.get("email")
+            password = request.form.get("password")
+            password = sha256_crypt.hash(password)
+            add_user_to_db(name, password, email)
+            flash(f"user {name} registered")
+            return redirect(url_for("dashboard"))
+    except Exception as e:
+        return render_template("404.html", exception = e)
+
 @app.route("/login", methods = ["POST"])
-def handle_login():
-    if request.method == "POST":
+def login():
+    if request.form:
         username = request.form.get("username")
         password = request.form.get("password")
         print(f"username: {username} password: {password}")
@@ -47,9 +63,9 @@ def support():
     except Exception as e:
         return render_template("404.html", exception = e)
 
-@app.route("/geturl/", methods = ["GET", "POST"])
+@app.route("/geturl/", methods = ["POST"])
 def get_url():
-    if request.method == "POST":
+    if request.form:
         url = request.form.get("url")
         try:
             source = urllib.request.urlopen(url).read()
@@ -65,6 +81,15 @@ def add_book():
     author = request.args.get("author")
     published = request.args.get("published")
     return add_book_to_db(name, author, published)
+
+@app.route("/getalluser/")
+def get_all_user():
+    try:
+        users = UserModel.query.all()
+        gc.collect()
+        return jsonify([u.serialize() for u in users])
+    except Exception as e:
+        return str(e)
         
 @app.route("/getallbook/")
 def get_all_book():
@@ -84,9 +109,9 @@ def get_by_id(id_):
     except Exception as e:
         return str(e)
         
-@app.route("/addbook/form/", methods = ["GET", "POST"])
+@app.route("/addbook/form/", methods = ["POST"])
 def add_book_form():
-    if request.method == "POST":
+    if request.form:
         name = request.form.get("name")
         author = request.form.get("author")
         published = request.form.get("published")
@@ -106,6 +131,16 @@ def add_book_to_db(name, author, published):
         return f"<h1>Book {name} added, Id {book.id}</h1>"
     except Exception as e:
         return str(e)
+
+def add_user_to_db(name, password, email):
+    user = UserModel(
+        name = name,
+        password = password,
+        email = email   
+    )
+    user.db.session.add(user)
+    user.db.session.commit()
+    gc.collect()
 
 @app.errorhandler(404)
 @app.errorhandler(405)
