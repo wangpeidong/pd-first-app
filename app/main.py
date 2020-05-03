@@ -86,6 +86,11 @@ def add_book_to_db(name, author, published):
     except Exception as e:
         return str(e)
 
+@app.errorhandler(404)
+@app.errorhandler(405)
+def page_not_found(e):
+    return render_template("404.html", exception = e)
+
 if __name__ == "__main__":
     app.run(debug = True)
 

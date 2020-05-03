@@ -1,0 +1,14 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+<p>
+	{% if exception %}
+		<h1> {{ exception.code }} </h1>
+		{{ exception.name }}
+		-
+		{{ exception.description }}
+	{% endif %}
+</p>
+
+{% endblock %}
