@@ -20,10 +20,20 @@
 	    <span class="navbar-toggler-icon"></span>
 	  </button>
 	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-	    <div class="navbar-nav my-2 my-lg-0">
-	      <a class="nav-item nav-link btn btn-outline-primary mr-sm-2" href="/dashboard/" aria-label="Left Align" style="height: 40px; margin-right: 15px">
-		  Start</a>
-		</div>
+        <div class="nav-item dropdown">
+	        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	          Start
+	        </a>
+	        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+	          <a class="dropdown-item" href="/dashboard/">Dashboard</a>
+	          <a class="dropdown-item" href="/addbook/form/">Add Book</a>
+	          <a class="dropdown-item" href="/geturl/">Get URL</a>
+	          <div class="dropdown-divider"></div>
+	          <a class="dropdown-item" href="/manageusers/">Manage Users</a>
+	          <div class="dropdown-divider"></div>
+	          <a class="dropdown-item" href="#">Something else here</a>
+	        </div>
+        </div>	  	
 	    <form class="mx-2 my-auto d-inline w-100" method=post action="/search">
           <input class="submit_on_enter form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
         </form>

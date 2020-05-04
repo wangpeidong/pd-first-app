@@ -63,7 +63,7 @@ def support():
     except Exception as e:
         return render_template("404.html", exception = e)
 
-@app.route("/geturl/", methods = ["POST"])
+@app.route("/geturl/", methods = ["GET", "POST"])
 def get_url():
     if request.form:
         url = request.form.get("url")
@@ -109,7 +109,7 @@ def get_by_id(id_):
     except Exception as e:
         return str(e)
         
-@app.route("/addbook/form/", methods = ["POST"])
+@app.route("/addbook/form/", methods = ["GET", "POST"])
 def add_book_form():
     if request.form:
         name = request.form.get("name")
@@ -145,6 +145,7 @@ def add_user_to_db(name, password, email):
 @app.errorhandler(404)
 @app.errorhandler(405)
 def page_not_found(e):
+    flash("You've got an error !")
     return render_template("404.html", exception = e)
 
 if __name__ == "__main__":
