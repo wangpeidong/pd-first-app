@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from os import environ
 from flask_wtf import FlaskForm
+from flask import Markup
 from wtforms import Form, BooleanField, TextField, PasswordField, validators
 from datetime import datetime
 import sys
@@ -43,8 +44,8 @@ class DBManagementForm(FlaskForm):
     ])
     confirm = PasswordField("Repeat Password")
 
-    accept_tos = BooleanField(f"I accept the <a href='/about/to'>Terms of Service</a> and <a href='/about/privacy-policy'>Privacy Notice</a> (updated {datetime.now().strftime('%B %d, %Y')})", [validators.Required()])
-
+    tos = Markup(f"I accept the <a href='/about/to'>Terms of Service</a> and <a href='/about/privacy-policy'>Privacy Notice</a> (updated {datetime.now().strftime('%B %d, %Y')})")
+    accept_tos = BooleanField(tos, [validators.Required()])
 
 if __name__ == "__main__":
 	pass
