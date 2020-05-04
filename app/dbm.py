@@ -3,6 +3,9 @@ print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__p
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from os import environ
+from flask_wtf import FlaskForm
+from wtforms import Form, BooleanField, TextField, PasswordField, validators
+from datetime import datetime
 import sys
 
 db = None
@@ -30,6 +33,18 @@ def create_all_tables():
     except:
         ex_info = sys.exc_info()
         print(f"Error: {ex_info[0]}")
+
+class DBManagementForm(FlaskForm):
+    tablename = TextField("Tablename", [validators.Length(min = 3, max = 20), validators.DataRequired()])
+    operation = TextField("Operation", [validators.Length(min = 3, max = 20), validators.DataRequired()])
+    password = PasswordField("Password", [
+        validators.Required(),
+        validators.EqualTo("confirm", message = "Passwords must match")
+    ])
+    confirm = PasswordField("Repeat Password")
+
+    accept_tos = BooleanField(f"I accept the <a href='/about/to'>Terms of Service</a> and <a href='/about/privacy-policy'>Privacy Notice</a> (updated {datetime.now().strftime('%B %d, %Y')})", [validators.Required()])
+
 
 if __name__ == "__main__":
 	pass
