@@ -99,7 +99,8 @@ def support():
 def search():
     try:
         if request.form:
-            url = "http://www.google.com/search?q=" + request.form.get("search")
+            url = ("http://www.google.com/search?q=" + urllib.parse.quote(request.form.get("search"))) #in case search string is unicode, covert it to ascii
+            print(url)
             # space is not valid character in URL, needs to be coverted to %20,
             # for example https://www.google.com/search?q=python%20w3school
             url = urllib.request.Request(url.replace(" ", "%20"), headers = {"User-Agent": "Mozilla/5.0"})
