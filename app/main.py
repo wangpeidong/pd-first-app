@@ -157,8 +157,7 @@ def add_book_to_db(name, author, published):
             author = author,
             published = published   
         )
-        book.db.session.add(book)
-        book.db.session.commit()
+        book.add_to_db()
         gc.collect()
         return f"<h1>Book {name} added, Id {book.id}</h1>"
     except Exception as e:
@@ -170,8 +169,7 @@ def add_user_to_db(name, password, email):
         password = password,
         email = email   
     )
-    user.db.session.add(user)
-    user.db.session.commit()
+    user.add_to_db()
     gc.collect()
 
 tables = {'book': BookModel, 'user': UserModel}    
@@ -184,8 +182,7 @@ def exec_table_operation(table, operation):
             idx = int(operation.split()[1])
             item = tables[table].query.get(idx)
             js = item.serialize()
-            item.db.session.delete(item)
-            item.db.session.commit()
+            item.delete_from_db()
             return jsonify(js).get_data(as_text = True) + "\n deleted"
 
         gc.collect()

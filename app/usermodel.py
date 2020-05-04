@@ -39,6 +39,14 @@ class UserModel(db.Model):
             "tracking": self.tracking
         }
 
+    def add_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
+
 if __name__ == "__main__":  
     create_all_tables()
 
