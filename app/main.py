@@ -25,9 +25,13 @@ def managedb():
         # No need to pass request.form to Flask-WTF, it will load automatically
         # and the validate_on_submit will check if it is a valid POST.
         form = DBManagementForm()
+
         if form.validate_on_submit():
-            print("validated")
-            return redirect(url_for("/"))
+            flash(form.tablename.data)
+            flash(form.operation.data)
+            return redirect("/")
+        if form.errors:
+            print(f"error in managedb: {form.errors}")
         return render_template("managedb.html", form = form)
     except Exception as e:
         return render_template("404.html", exception = e)
@@ -52,7 +56,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         print(f"username: {username} password: {password}")
-        return render_template("dashboard.html")
+        return redirect("/")
 
 @app.route("/dashboard/")
 def dashboard():
