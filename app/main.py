@@ -27,12 +27,11 @@ def managedb():
         form = DBManagementForm()
 
         if form.validate_on_submit():
-            flash(form.tablename.data)
-            flash(form.operation.data)
-            return redirect("/")
+            result = exec_table_operation(form.tablename.data, form.operation.data)
+            return render_template("managedb.html", form = form, result = result)
         if form.errors:
             print(f"error in managedb: {form.errors}")
-        return render_template("managedb.html", form = form)
+        return render_template("managedb.html", form = form, result = None)
     except Exception as e:
         return render_template("404.html", exception = e)
 
@@ -44,9 +43,14 @@ def register():
             email = request.form.get("email")
             password = request.form.get("password")
             password = sha256_crypt.hash(password)
+
             add_user_to_db(name, password, email)
+
             flash(f"user {name} registered")
-            return redirect(url_for("dashboard"))
+
+            session["logged_in"] = True
+            session["username"] = name
+            return redirect("/")
     except Exception as e:
         return render_template("404.html", exception = e)
 
@@ -158,6 +162,24 @@ def add_user_to_db(name, password, email):
     user.db.session.add(user)
     user.db.session.commit()
     gc.collect()
+
+tables = {'book': BookModel, 'user': UserModel}    
+def exec_table_operation(table, operation):
+    try:
+        if operation == "selectall":
+            results = tables[table].query.all()
+            return jsonify([r.serialize() for r in results]).get_data(as_text = True)
+        elif operation.startswith("delete"):
+            idx = int(operation.split()[1])
+            item = tables[table].query.get(idx)
+            js = item.serialize()
+            item.db.session.delete(item)
+            item.db.session.commit()
+            return jsonify(js).get_data(as_text = True) + "\n deleted"
+
+        gc.collect()
+    except Exception as e:
+        return str(e)
 
 @app.errorhandler(404)
 @app.errorhandler(405)

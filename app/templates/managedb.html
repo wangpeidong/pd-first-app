@@ -22,6 +22,12 @@
 	{% if error %}
 		<p class="error"><strong>Error:</strong>{{ error }}</p>
 	{% endif %}
+
+	<br>
+	{% if result %}
+		<h5> Result </h5>
+		<p>{{ result }}</p>
+	{% endif %}
 </p>
 
 {% endblock %}
