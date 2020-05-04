@@ -53,8 +53,8 @@
 				  <form action="/login" class="form-block" method=post>
 			      	<div class="modal-body">
 			      		<dl>
-							<dd><input type="text" class="form-control" placeholder="Username" name="username" value=""></dd>
-							<dd><input type="password" class="form-control" placeholder="Password" name="password" value=""></dd>
+							<dd><input class="form-control" id="username" name="username" type="text" placeholder="user name" minlength="3" maxlength="30" required></dd>
+						  	<dd><input class="form-control" id="password" name="password" type="password" placeholder="password" required></dd>							
 						</dl>
 			      	</div>
 			      	<div class="modal-footer">

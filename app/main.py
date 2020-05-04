@@ -1,6 +1,6 @@
 print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__package__):<20}")
 
-from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session
+from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session, Markup
 from passlib.hash import sha256_crypt
 import bs4 as bs
 import urllib.request
@@ -17,7 +17,7 @@ from .usermodel import UserModel
 
 @app.route("/")
 def homepage():
-    return render_template("main.html")
+    return render_template("main.html",  message=Markup("<h1>Welcome to PD homepage !</h1>"))
 
 @app.route("/managedb", methods = ["GET", "POST"])
 def managedb():
@@ -50,17 +50,28 @@ def register():
 
             session["logged_in"] = True
             session["username"] = name
-            return redirect("/")
+            return render_template("main.html",  message=Markup(f"<h1>user {name} registered !</h1>"))
     except Exception as e:
         return render_template("404.html", exception = e)
 
 @app.route("/login", methods = ["POST"])
 def login():
-    if request.form:
-        username = request.form.get("username")
-        password = request.form.get("password")
-        print(f"username: {username} password: {password}")
-        return redirect("/")
+    try:
+        if request.form:
+            name = request.form.get("username")
+            password = request.form.get("password")
+            print(f"username: {name} password: {password}")
+
+            user = UserModel.query.filter_by(name = name).first()
+            if (user and sha256_crypt.verify(password, user.password)):
+                flash(f"Welcome")
+                session["logged_in"] = True
+                session["username"] = name
+                return render_template("main.html",  message=Markup(f"<h1>user {name} logged in !</h1>"))
+            flash(f"Alert")
+            return render_template("main.html",  message=Markup(f"<h1>user {name} credential not correct !</h1>"))
+    except Exception as e:
+        return render_template("404.html", exception = e)
 
 @app.route("/dashboard/")
 def dashboard():
