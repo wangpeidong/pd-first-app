@@ -95,17 +95,33 @@ def support():
     except Exception as e:
         return render_template("404.html", exception = e)
 
-@app.route("/geturl/", methods = ["GET", "POST"])
-def get_url():
-    if request.form:
-        url = request.form.get("url")
-        try:
+@app.route("/search", methods = ["GET", "POST"])
+def search():
+    try:
+        if request.form:
+            url = "http://www.google.com/search?q=" + request.form.get("search")
+            # space is not valid character in URL, needs to be coverted to %20,
+            # for example https://www.google.com/search?q=python%20w3school
+            url = urllib.request.Request(url.replace(" ", "%20"), headers = {"User-Agent": "Mozilla/5.0"})
             source = urllib.request.urlopen(url).read()
             soup = bs.BeautifulSoup(source, 'lxml')
-            return soup.get_text()
-        except Exception as e:
-            return f'exception: {str(e)}'
-    return render_template("geturl.html")
+            return render_template("main.html", message = Markup(soup.get_text()))
+    except Exception as e:
+        return render_template("404.html", exception = e)
+
+@app.route("/geturl/", methods = ["GET", "POST"])
+def get_url():
+    try:
+        if request.form:
+            url = request.form.get("url")
+            # pretend the requst is from browser to avoid bot detection
+            url = urllib.request.Request(url, headers = {"User-Agent": "Mozilla/5.0"})
+            source = urllib.request.urlopen(url).read()
+            soup = bs.BeautifulSoup(source, 'lxml')
+            return render_template("geturl.html", result = Markup(soup.get_text()))
+        return render_template("geturl.html")
+    except Exception as e:
+        return render_template("404.html", exception = e)
     
 @app.route("/addbook/")
 def add_book():
@@ -147,7 +163,7 @@ def add_book_form():
         name = request.form.get("name")
         author = request.form.get("author")
         published = request.form.get("published")
-        return add_book_to_db(name, author, published)
+        return render_template("getinput.html", result = add_book_to_db(name, author, published))
     return render_template("getinput.html")
     
 def add_book_to_db(name, author, published):
