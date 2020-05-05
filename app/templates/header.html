@@ -39,74 +39,105 @@
         </form>
 	    <div class="navbar-nav my-2 my-lg-0">
 			<a href="/support/"> <span class="glyphicon glyphicon-heart mr-sm-2"></span>Support</a>
-			<!-- Login button trigger modal -->
-			<a data-toggle="modal" data-target="#loginModal" href="#"><span class="glyphicon glyphicon-log-in mr-sm-2"></span>Login</a>
-			<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-			  <div class="modal-dialog" role="document">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title" id="loginModalLabel">Login</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			          <span aria-hidden="true">&times;</span>
-			        </button>
-			      </div>
-				  <form action="/login" class="form-block" method=post>
-			      	<div class="modal-body">
-			      		<dl>
-							<dd><input class="form-control" id="username" name="username" type="text" placeholder="user name" minlength="3" maxlength="30" required></dd>
-						  	<dd><input class="form-control" id="password" name="password" type="password" placeholder="password" required></dd>							
-						</dl>
-			      	</div>
-			      	<div class="modal-footer">
-			        	<button type="submit" onClick="form_submit()" class="btn btn-primary">Submit</button>
-			        	<p>No account? <a data-toggle="modal" data-target="#signupModal" href="#">Register here</a>.</p>
-			      	</div>
-				  </form>
-			    </div>
-			  </div>
-			</div>
-			<!-- svg icon -->
-			<svg class="bi bi-person" width="1em" height="1em" viewBox="0 0 16 16" fill="yellow" xmlns="http://www.w3.org/2000/svg">
-			  <path fill-rule="evenodd" d="M13 14s1 0 1-1-1-4-6-4-6 3-6 4 1 1 1 1h10zm-9.995-.944v-.002.002zM3.022 13h9.956a.274.274 0 00.014-.002l.008-.002c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664a1.05 1.05 0 00.022.004zm9.974.056v-.002.002zM8 7a2 2 0 100-4 2 2 0 000 4zm3-2a3 3 0 11-6 0 3 3 0 016 0z" clip-rule="evenodd"/>
-			</svg>			
-			<!-- Sign up button trigger modal -->
-			<a data-toggle="modal" data-target="#signupModal" href="#"><span class="glyphicon glyphicon-log-in mr-sm-2"></span>Signup</a>
-			<div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
-			  <div class="modal-dialog" role="document">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title" id="signupModalLabel">Signup</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			          <span aria-hidden="true">&times;</span>
-			        </button>
-			      </div>
-				  <form method=post action="/register" oninput='confirm.setCustomValidity(confirm.value != password.value ? "Passwords do not match." : "")'>
-			      	<div class="modal-body">
-					  <dl>
-						  <dd><input class="form-control" id="username" name="username" type="text" placeholder="user name" minlength="3" maxlength="30" required></dd>
-						  <dd><input class="form-control" id="email" name="email" type="text" placeholder="email address" minlength="5" maxlength="30" required></dd>
-						  <dd><input class="form-control" id="password" name="password" type="password" placeholder="password" required></dd>
-						  <dd><input class="form-control" id="confirm" name="confirm" type="password" placeholder="re-enter password" required></dd>
-					  </dl>
-		      		</div>
-			      	<div class="modal-footer">
-					  <div class="form-group">
-					    <div class="form-check">			      		
-							<input class="form-check-input" id="accept_tos" name="accept_tos" type="checkbox" value="y" required>
-					      	<label class="form-check-label" for="accept_tos">I accept the <a href="/about/tos" target="blank">Terms of Service</a> and <a href="/about/privacy-policy" target="blank">Privacy Notice</a></label>
-						</div>
-					  </div>
-				      <button type="submit" onClick="form_submit()" class="btn btn-outline-primary">Submit</button>
-			      	</div>
-				  </form>
-			    </div>
-			  </div>
-			</div>
-			<!-- svg icon -->
-			<svg class="bi bi-pencil-square mr-rm-2" width="1em" height="1em" viewBox="0 0 16 16" fill="yellow" xmlns="http://www.w3.org/2000/svg">
-  			<path d="M15.502 1.94a.5.5 0 010 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 01.707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 00-.121.196l-.805 2.414a.25.25 0 00.316.316l2.414-.805a.5.5 0 00.196-.12l6.813-6.814z"/>
-  			<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 002.5 15h11a1.5 1.5 0 001.5-1.5v-6a.5.5 0 00-1 0v6a.5.5 0 01-.5.5h-11a.5.5 0 01-.5-.5v-11a.5.5 0 01.5-.5H9a.5.5 0 000-1H2.5A1.5 1.5 0 001 2.5v11z" clip-rule="evenodd"/>
-			</svg>
+			{% if session.logged_in %}
+				<a data-toggle="modal" data-target="#logoutModal" href="#"><span class="glyphicon glyphicon-log-in mr-sm-2"></span>Logout</a>
+				<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="logoutModalLabel">Logout</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+					  <form action="/logout" class="form-block" method=post>
+				      	<div class="modal-body">
+				      		<dl>
+								<dt><h4>Click Ok to proceed logout !</h4></dt>
+							</dl>
+				      	</div>
+				      	<div class="modal-footer">
+				        	<button type="submit" onClick="form_submit()" class="btn btn-primary">Ok</button>
+				      	</div>
+					  </form>
+				    </div>
+				  </div>
+				</div>
+				<!-- svg icon -->
+				<svg class="bi bi-person" width="1em" height="1em" viewBox="0 0 16 16" fill="yellow" xmlns="http://www.w3.org/2000/svg">
+				  <path fill-rule="evenodd" d="M13 14s1 0 1-1-1-4-6-4-6 3-6 4 1 1 1 1h10zm-9.995-.944v-.002.002zM3.022 13h9.956a.274.274 0 00.014-.002l.008-.002c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664a1.05 1.05 0 00.022.004zm9.974.056v-.002.002zM8 7a2 2 0 100-4 2 2 0 000 4zm3-2a3 3 0 11-6 0 3 3 0 016 0z" clip-rule="evenodd"/>
+				</svg>			
+				<span class="glyphicon glyphicon-log-in mr-sm-2" style="color:yellow">{{ session.username }}</span>
+			{% else %}
+				<!-- Login button trigger modal -->
+				<a data-toggle="modal" data-target="#loginModal" href="#"><span class="glyphicon glyphicon-log-in mr-sm-2"></span>Login</a>
+				<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="loginModalLabel">Login</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+					  <form action="/login" class="form-block" method=post>
+				      	<div class="modal-body">
+				      		<dl>
+								<dd><input class="form-control" id="username" name="username" type="text" placeholder="user name" minlength="3" maxlength="30" required></dd>
+							  	<dd><input class="form-control" id="password" name="password" type="password" placeholder="password" required></dd>							
+							</dl>
+				      	</div>
+				      	<div class="modal-footer">
+				        	<button type="submit" onClick="form_submit()" class="btn btn-primary">Submit</button>
+				        	<p>No account? <a data-toggle="modal" data-target="#signupModal" href="#">Register here</a>.</p>
+				      	</div>
+					  </form>
+				    </div>
+				  </div>
+				</div>
+				<!-- svg icon -->
+				<svg class="bi bi-person" width="1em" height="1em" viewBox="0 0 16 16" fill="yellow" xmlns="http://www.w3.org/2000/svg">
+				  <path fill-rule="evenodd" d="M13 14s1 0 1-1-1-4-6-4-6 3-6 4 1 1 1 1h10zm-9.995-.944v-.002.002zM3.022 13h9.956a.274.274 0 00.014-.002l.008-.002c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664a1.05 1.05 0 00.022.004zm9.974.056v-.002.002zM8 7a2 2 0 100-4 2 2 0 000 4zm3-2a3 3 0 11-6 0 3 3 0 016 0z" clip-rule="evenodd"/>
+				</svg>			
+				<!-- Sign up button trigger modal -->
+				<a data-toggle="modal" data-target="#signupModal" href="#"><span class="glyphicon glyphicon-log-in mr-sm-2"></span>Signup</a>
+				<div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="signupModalLabel">Signup</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+					  <form method=post action="/register" oninput='confirm.setCustomValidity(confirm.value != password.value ? "Passwords do not match." : "")'>
+				      	<div class="modal-body">
+						  <dl>
+							  <dd><input class="form-control" id="username" name="username" type="text" placeholder="user name" minlength="3" maxlength="30" required></dd>
+							  <dd><input class="form-control" id="email" name="email" type="text" placeholder="email address" minlength="5" maxlength="30" required></dd>
+							  <dd><input class="form-control" id="password" name="password" type="password" placeholder="password" required></dd>
+							  <dd><input class="form-control" id="confirm" name="confirm" type="password" placeholder="re-enter password" required></dd>
+						  </dl>
+			      		</div>
+				      	<div class="modal-footer">
+						  <div class="form-group">
+						    <div class="form-check">			      		
+								<input class="form-check-input" id="accept_tos" name="accept_tos" type="checkbox" value="y" required>
+						      	<label class="form-check-label" for="accept_tos">I accept the <a href="/about/tos" target="blank">Terms of Service</a> and <a href="/about/privacy-policy" target="blank">Privacy Notice</a></label>
+							</div>
+						  </div>
+					      <button type="submit" onClick="form_submit()" class="btn btn-outline-primary">Submit</button>
+				      	</div>
+					  </form>
+				    </div>
+				  </div>
+				</div>
+				<!-- svg icon -->
+				<svg class="bi bi-pencil-square mr-rm-2" width="1em" height="1em" viewBox="0 0 16 16" fill="yellow" xmlns="http://www.w3.org/2000/svg">
+	  			<path d="M15.502 1.94a.5.5 0 010 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 01.707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 00-.121.196l-.805 2.414a.25.25 0 00.316.316l2.414-.805a.5.5 0 00.196-.12l6.813-6.814z"/>
+	  			<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 002.5 15h11a1.5 1.5 0 001.5-1.5v-6a.5.5 0 00-1 0v6a.5.5 0 01-.5.5h-11a.5.5 0 01-.5-.5v-11a.5.5 0 01.5-.5H9a.5.5 0 000-1H2.5A1.5 1.5 0 001 2.5v11z" clip-rule="evenodd"/>
+				</svg>
+			{% endif %}
 		</div>
 	  </div>
 	</nav>

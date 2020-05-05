@@ -2,6 +2,7 @@ print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__p
 
 from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session, Markup
 from passlib.hash import sha256_crypt
+from functools import wraps
 import bs4 as bs
 import urllib.request
 import gc
@@ -14,6 +15,56 @@ connect_db(app)
 
 from .bookmodel import BookModel
 from .usermodel import UserModel
+
+# Define decorator/wrapper
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if "logged_in" in session:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to login first !")
+            return redirect(url_for("homepage"))
+    return wrap
+
+def add_book_to_db(name, author, published):
+    try:
+        book = BookModel(
+            name = name,
+            author = author,
+            published = published   
+        )
+        book.add_to_db()
+        gc.collect()
+        return f"<h1>Book {name} added, Id {book.id}</h1>"
+    except Exception as e:
+        return str(e)
+
+def add_user_to_db(name, password, email):
+    user = UserModel(
+        name = name,
+        password = password,
+        email = email   
+    )
+    user.add_to_db()
+    gc.collect()
+
+tables = {'book': BookModel, 'user': UserModel}    
+def exec_table_operation(table, operation):
+    try:
+        if operation == "selectall":
+            results = tables[table].query.all()
+            return jsonify([r.serialize() for r in results]).get_data(as_text = True)
+        elif operation.startswith("delete"):
+            idx = int(operation.split()[1])
+            item = tables[table].query.get(idx)
+            js = item.serialize()
+            item.delete_from_db()
+            return jsonify(js).get_data(as_text = True) + "\n deleted"
+
+        gc.collect()
+    except Exception as e:
+        return str(e)
 
 @app.route("/")
 def homepage():
@@ -73,6 +124,17 @@ def login():
     except Exception as e:
         return render_template("404.html", exception = e)
 
+@app.route("/logout", methods = ["GET", "POST"])
+@login_required
+def logout():
+    try:
+        name = session["username"]
+        flash(f"You are logged out.")
+        session.clear()
+        return render_template("main.html",  message=Markup(f"<h1>user {name} logged out !</h1>"))
+    except Exception as e:
+        return render_template("404.html", exception = e)
+
 @app.route("/dashboard/")
 def dashboard():
     try:
@@ -98,7 +160,7 @@ def support():
 @app.route("/search", methods = ["GET", "POST"])
 def search():
     try:
-        if request.form:
+        if request.form and request.method == "POST":
             url = ("http://www.google.com/search?q=" + urllib.parse.quote(request.form.get("search"))) #in case search string is unicode, covert it to ascii
             print(url)
             # space is not valid character in URL, needs to be coverted to %20,
@@ -113,7 +175,7 @@ def search():
 @app.route("/geturl/", methods = ["GET", "POST"])
 def get_url():
     try:
-        if request.form:
+        if request.form and request.method == "POST":
             url = request.form.get("url")
             # pretend the requst is from browser to avoid bot detection
             url = urllib.request.Request(url, headers = {"User-Agent": "Mozilla/5.0"})
@@ -167,45 +229,6 @@ def add_book_form():
         return render_template("getinput.html", result = add_book_to_db(name, author, published))
     return render_template("getinput.html")
     
-def add_book_to_db(name, author, published):
-    try:
-        book = BookModel(
-            name = name,
-            author = author,
-            published = published   
-        )
-        book.add_to_db()
-        gc.collect()
-        return f"<h1>Book {name} added, Id {book.id}</h1>"
-    except Exception as e:
-        return str(e)
-
-def add_user_to_db(name, password, email):
-    user = UserModel(
-        name = name,
-        password = password,
-        email = email   
-    )
-    user.add_to_db()
-    gc.collect()
-
-tables = {'book': BookModel, 'user': UserModel}    
-def exec_table_operation(table, operation):
-    try:
-        if operation == "selectall":
-            results = tables[table].query.all()
-            return jsonify([r.serialize() for r in results]).get_data(as_text = True)
-        elif operation.startswith("delete"):
-            idx = int(operation.split()[1])
-            item = tables[table].query.get(idx)
-            js = item.serialize()
-            item.delete_from_db()
-            return jsonify(js).get_data(as_text = True) + "\n deleted"
-
-        gc.collect()
-    except Exception as e:
-        return str(e)
-
 @app.errorhandler(404)
 @app.errorhandler(405)
 def page_not_found(e):
