@@ -58,12 +58,13 @@ def add_user_to_db(name, password, email):
     user.add_to_db()
     gc.collect()
 
-def get_files_list(folder):
+def get_files_list():
     files = []
     # r=root, d=directories, f=files
-    for r, d, f in os.walk(folder):
+    for r, d, f in os.walk(app.root_path):
         for file in f:
-            files.append(os.path.join(r, file))
+            # strip app.root_path 
+            files.append(os.path.join(r, file).split(app.root_path, 1)[1])
     return files
 
 tables = {'book': BookModel, 'user': UserModel}    
@@ -169,7 +170,7 @@ def dashboard():
             topic_dict["Book"].append([book.name, book.author, book.published])
         for user in users:
             topic_dict["User"].append([user.name, user.email, user.password, user.role, user.setting, user.tracking])
-        topic_dict["File"] = get_files_list(app.root_path)
+        topic_dict["File"] = get_files_list()
 
         return render_template("dashboard.html", topic_dict = topic_dict)
     except Exception as e:
@@ -179,10 +180,8 @@ def dashboard():
 @privilege_login_required("Admin")
 def getfile(file):
     try:
-        #
-        # TBD
-        #
-        # The attachment_filename still not working somehow 
+        # The attachment_filename was not working when retrieveing from under os.getcwd()
+        # but worked when retrieveing from under app.root_path
         filename = file.split("/")[-1]
         return send_file(file, as_attachment = True, attachment_filename = filename)
     except Exception as e:
