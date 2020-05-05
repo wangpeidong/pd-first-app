@@ -169,7 +169,7 @@ def dashboard():
             topic_dict["Book"].append([book.name, book.author, book.published])
         for user in users:
             topic_dict["User"].append([user.name, user.email, user.password, user.role, user.setting, user.tracking])
-        topic_dict["File"] = get_files_list(os.getcwd())
+        topic_dict["File"] = get_files_list(app.root_path)
 
         return render_template("dashboard.html", topic_dict = topic_dict)
     except Exception as e:
