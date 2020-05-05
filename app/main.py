@@ -17,15 +17,24 @@ from .bookmodel import BookModel
 from .usermodel import UserModel
 
 # Define decorator/wrapper
-def login_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if "logged_in" in session:
-            return f(*args, **kwargs)
-        else:
-            flash("You need to login first !")
-            return redirect(url_for("homepage"))
-    return wrap
+def privilege_login_required(privilege):
+    def login_required(f):
+        @wraps(f)
+        def wrap(*args, **kwargs):
+            if privilege:
+                if "username" in session and privilege == session["username"]:
+                    return f(*args, **kwargs)
+                else:
+                    flash("You must login with privilege first !")
+                    return redirect(url_for("homepage"))
+            else:
+                if "logged_in" in session:
+                    return f(*args, **kwargs)
+                else:
+                    flash("You must login first !")
+                    return redirect(url_for("homepage"))
+        return wrap
+    return login_required
 
 def add_book_to_db(name, author, published):
     try:
@@ -71,6 +80,7 @@ def homepage():
     return render_template("main.html",  message=Markup("<h1>Welcome to PD homepage !</h1>"))
 
 @app.route("/managedb", methods = ["GET", "POST"])
+@privilege_login_required("Admin")
 def managedb():
     try:
         # No need to pass request.form to Flask-WTF, it will load automatically
@@ -125,9 +135,11 @@ def login():
         return render_template("404.html", exception = e)
 
 @app.route("/logout", methods = ["GET", "POST"])
-@login_required
+@privilege_login_required(None)
 def logout():
     try:
+        if request.method == "GET":
+            return redirect(url_for("homepage") + "#logoutModal")
         name = session["username"]
         flash(f"You are logged out.")
         session.clear()
@@ -136,13 +148,17 @@ def logout():
         return render_template("404.html", exception = e)
 
 @app.route("/dashboard/")
+@privilege_login_required(None)
 def dashboard():
     try:
-        topic_dict = {"Basic": [], "Web Dev": []}
+        topic_dict = {"Book": [], "User": []}
         books = BookModel.query.all()
+        users = UserModel.query.all()
         gc.collect()
         for book in books:
-            topic_dict["Basic"].append([book.name, book.author, book.published])
+            topic_dict["Book"].append([book.name, book.author, book.published])
+        for user in users:
+            topic_dict["User"].append([user.name, user.email, user.password, user.role, user.setting, user.tracking])
 
         return render_template("dashboard.html", topic_dict = topic_dict)
     except Exception as e:

@@ -6,24 +6,28 @@
 
   <!-- Nav tabs -->
   <nav class="nav nav-tabs" id="myTab" role="tablist">
-    <a class="nav-item nav-link active" id="basic-tab" data-toggle="tab" href="#basic" role="tab" aria-controls="basic" aria-select="true">Basic</a>
-    <a class="nav-item nav-link" id="wdev-tab" data-toggle="tab" href="#wdev" role="tab" aria-controls="wdev" aria-select="false">Web Dev</a>
+    <a class="nav-item nav-link active" id="book-tab" data-toggle="tab" href="#book" role="tab" aria-controls="book" aria-select="true">Book</a>
+    <a class="nav-item nav-link" id="user-tab" data-toggle="tab" href="#user" role="tab" aria-controls="user" aria-select="false">User</a>
     <a class="nav-item nav-link" id="dan-tab" data-toggle="tab" href="#dan" role="tab" aria-controls="dan" aria-select="false">Data Analysis</a>
     <a class="nav-item nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
   </nav>
 
   <!-- Tab panes -->
   <div class="tab-content" id="myTabContent">
-    <div role="tabpanel" class="tab-pane fade show active" id="basic" aria-labelledby="basic-tab">
+    <div role="tabpanel" class="tab-pane fade show active" id="book" aria-labelledby="book-tab">
       <ul>
-        {% for t in topic_dict["Basic"] %}
-          <li> Book <span style="color:blue">{{ t[0] }}</span> written by <span style="color:blue">{{ t[1] }}</span> published on <span style="color:blue">{{ t[2] }}</span> </li>
+        {% for b in topic_dict["Book"] %}
+          <li> Book <span style="color:blue">{{ b[0] }}</span> written by <span style="color:blue">{{ b[1] }}</span> published on <span style="color:blue">{{ b[2] }}</span> </li>
         {% endfor %}
       </ul>
     </div>
 
-    <div role="tabpanel" class="tab-pane fade" id="wdev" aria-labelledby="wdev-tab">Web Development
-
+    <div role="tabpanel" class="tab-pane fade" id="user" aria-labelledby="user-tab">
+      <ul>
+        {% for u in topic_dict["User"] %}
+          <li> User <span style="color:blue">{{ u[0] }}</span> with email <span style="color:blue">{{ u[1] }}</span> and password <span style="color:blue">{{ u[2] }}</span> </li>
+        {% endfor %}
+      </ul>
     </div>
 
     <div role="tabpanel" class="tab-pane fade" id="dan" aria-labelledby="dan-tab">Data analysis!#Q$@!#
