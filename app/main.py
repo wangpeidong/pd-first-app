@@ -5,7 +5,7 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 import bs4 as bs
 import urllib.request
-import gc
+import gc, os
 
 app = Flask(__name__)
 app.secret_key = b'!@#$%^&*()'
@@ -153,7 +153,7 @@ def logout():
 @privilege_login_required(None)
 def dashboard():
     try:
-        topic_dict = {"Book": [], "User": []}
+        topic_dict = {"Book": [], "User": [], "File": []}
         books = BookModel.query.all()
         users = UserModel.query.all()
         gc.collect()
@@ -165,6 +165,10 @@ def dashboard():
         return render_template("dashboard.html", topic_dict = topic_dict)
     except Exception as e:
         return render_template("404.html", exception = e)
+
+@app.route("/getcwd")
+def getcwd():
+    return os.getcwd()
 
 @app.route("/support/")
 def support():
