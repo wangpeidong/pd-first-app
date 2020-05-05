@@ -75,8 +75,10 @@ def exec_table_operation(table, operation):
     except Exception as e:
         return str(e)
 
+# Use dynamic url to return anypath not being routed to homepage
+@app.route("/<path:anypath>/")
 @app.route("/")
-def homepage():
+def homepage(anypath = "/"):
     return render_template("main.html",  message=Markup("<h1>Welcome to PD homepage !</h1>"))
 
 @app.route("/managedb", methods = ["GET", "POST"])
@@ -227,7 +229,7 @@ def get_all_book():
     except Exception as e:
         return str(e)
         
-@app.route("/getbook/<id_>/")
+@app.route("/getbook/<int:id_>/")
 def get_by_id(id_):
     try:
         book = BookModel.query.filter_by(id = id_).first()
