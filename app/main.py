@@ -228,9 +228,10 @@ def get_all_book():
         return jsonify([b.serialize() for b in books])
     except Exception as e:
         return str(e)
-        
+
+@app.route("/getbook/")        
 @app.route("/getbook/<int:id_>/")
-def get_by_id(id_):
+def get_by_id(id_ = 1):
     try:
         book = BookModel.query.filter_by(id = id_).first()
         gc.collect()
