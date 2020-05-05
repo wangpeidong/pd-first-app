@@ -8,7 +8,7 @@
   <nav class="nav nav-tabs" id="myTab" role="tablist">
     <a class="nav-item nav-link active" id="book-tab" data-toggle="tab" href="#book" role="tab" aria-controls="book" aria-select="true">Book</a>
     <a class="nav-item nav-link" id="user-tab" data-toggle="tab" href="#user" role="tab" aria-controls="user" aria-select="false">User</a>
-    <a class="nav-item nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="user" aria-select="false">File</a>
+    <a class="nav-item nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="file" aria-select="false">File</a>
     <a class="nav-item nav-link" id="dan-tab" data-toggle="tab" href="#dan" role="tab" aria-controls="dan" aria-select="false">Data Analysis</a>
     <a class="nav-item nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
   </nav>
@@ -33,8 +33,8 @@
 
     <div role="tabpanel" class="tab-pane fade" id="file" aria-labelledby="file-tab">
       <ul>
-        {% for u in topic_dict["File"] %}
-          <li> File <span style="color:blue">{{ u[0] }}</span> </li>
+        {% for f in topic_dict["File"] %}
+          <li> File <a href="/getfile/{{ f }}"> {{ f }} </a> </li>
         {% endfor %}
       </ul>
     </div>

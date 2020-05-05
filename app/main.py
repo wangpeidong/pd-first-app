@@ -1,6 +1,6 @@
 print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__package__):<20}")
 
-from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session, Markup
+from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session, Markup, send_file
 from passlib.hash import sha256_crypt
 from functools import wraps
 import bs4 as bs
@@ -57,6 +57,14 @@ def add_user_to_db(name, password, email):
     )
     user.add_to_db()
     gc.collect()
+
+def get_files_list(folder):
+    files = []
+    # r=root, d=directories, f=files
+    for r, d, f in os.walk(folder):
+        for file in f:
+            files.append(os.path.join(r, file))
+    return files
 
 tables = {'book': BookModel, 'user': UserModel}    
 def exec_table_operation(table, operation):
@@ -161,14 +169,24 @@ def dashboard():
             topic_dict["Book"].append([book.name, book.author, book.published])
         for user in users:
             topic_dict["User"].append([user.name, user.email, user.password, user.role, user.setting, user.tracking])
+        topic_dict["File"] = get_files_list(os.getcwd())
 
         return render_template("dashboard.html", topic_dict = topic_dict)
     except Exception as e:
         return render_template("404.html", exception = e)
 
-@app.route("/getcwd")
-def getcwd():
-    return os.getcwd()
+@app.route("/getfile/<path:file>/")
+@privilege_login_required("Admin")
+def getfile(file):
+    try:
+        #
+        # TBD
+        #
+        # The attachment_filename still not working somehow 
+        filename = file.split("/")[-1]
+        return send_file(file, as_attachment = True, attachment_filename = filename)
+    except Exception as e:
+        return str(e)
 
 @app.route("/support/")
 def support():
