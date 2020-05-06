@@ -235,7 +235,7 @@ def graph_example():
         df.set_index("Date", inplace = True)
 
         graph = pygal.Line()
-        graph.title = "^GSPC"
+        graph.title = "Pygal Graph (^GSPC)"
         graph.x_labels = df.index.tolist()
         graph.add("Open", df["Open"].tolist())
         graph.add("High", df["High"].tolist())
@@ -243,13 +243,16 @@ def graph_example():
         graph.add("Close", df["Adj Close"].tolist())
         graph_data = graph.render_data_uri()
 
-        layout = go.Layout(title_text = "^GSPC")
-        trace1 = go.Scatter(x = df.index, y = df["Adj Close"], name = "Adj Close")
-        data = [trace1]
+        layout = go.Layout(title_text = "Plotly Graph (^GSPC)", title_x = 0.5)
+        trace1 = go.Scatter(x = df.index, y = df["Open"], name = "Open")
+        trace2 = go.Scatter(x = df.index, y = df["High"], name = "High")
+        trace3 = go.Scatter(x = df.index, y = df["Low"], name = "Low")
+        trace4 = go.Scatter(x = df.index, y = df["Adj Close"], name = "Close")
+        data = [trace1, trace2, trace3, trace4]
         fig = go.Figure(data = data, layout = layout)
         fig_data = json.dumps(fig, cls = plotly.utils.PlotlyJSONEncoder)
 
-        return render_template("graphing.html", fig_data = fig_data, graph_data = graph_data)
+        return render_template("graphing.html", graph_data = graph_data, fig_data = fig_data)
     except Exception as e:
         return(str(e))
 
