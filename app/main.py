@@ -161,6 +161,21 @@ def logout():
     except Exception as e:
         return render_template("404.html", exception = e)
 
+@app.route('/_background_process/')
+def background_process():
+    try:
+        lang = request.args.get('proglang', 0, type = str)
+        if lang.lower() == 'python':
+            return jsonify(result = 'You are wise')
+        else:
+            return jsonify(result = 'Try again.')
+    except Exception as e:
+        return str(e)
+
+@app.route('/jQuery-example/')
+def interactive():
+    return render_template('jQuery-example.html')
+
 @app.route("/upload-file/", methods = ["GET", "POST"])
 @privilege_login_required(None)
 def upload_file():
@@ -168,7 +183,7 @@ def upload_file():
         result = None
         if request.method == "POST":
           f = request.files["file"]
-          f.save(secure_filename(f.filename))
+          f.save(secure_filename(f.filenagitme))
           result = f"The file {f.filename} uploaded successfully"
         return render_template("upload-file.html",  result = result)
     except Exception as e:
