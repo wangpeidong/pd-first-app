@@ -1,0 +1,25 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+  <div class="container-fluid" style="max-width=80%">
+    {% if session['logged_in'] %}
+      <br>
+      <form action="#" class="form" method="post" id="fileform" enctype="multipart/form-data">
+        <input type="file" id="file" name="file" style="border-style:solid;border-color:lightblue" required/>
+        <input class="btn btn-primary" type="submit" value="Upload">
+      </form>
+    {% else %}
+      <p>You must be <a href="/login/">logged in</a> to upload file !</p>
+    {% endif %}
+
+    <br>
+
+    {% if result %}
+      <h5> Result </h5>
+      <p> {{ result }} </p>
+    {% endif %}
+  </div>
+
+{% endblock %}
+ 

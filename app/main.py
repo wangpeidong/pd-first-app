@@ -2,6 +2,7 @@ print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__p
 
 from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session, Markup, send_file
 from flask_mail import Mail, Message
+from werkzeug.utils import secure_filename
 from passlib.hash import sha256_crypt
 from functools import wraps
 import bs4 as bs
@@ -160,6 +161,19 @@ def logout():
     except Exception as e:
         return render_template("404.html", exception = e)
 
+@app.route("/upload-file/", methods = ["GET", "POST"])
+@privilege_login_required(None)
+def upload_file():
+    try:
+        result = None
+        if request.method == "POST":
+          f = request.files["file"]
+          f.save(secure_filename(f.filename))
+          result = f"The file {f.filename} uploaded successfully"
+        return render_template("upload-file.html",  result = result)
+    except Exception as e:
+        return render_template("404.html", exception = e)
+
 @app.route("/send-mail/", methods = ["GET", "POST"])
 @privilege_login_required(None)
 def send_mail():
@@ -187,8 +201,8 @@ def send_mail():
             msg = Message(title, sender = from_, recipients = to_list)
             msg.body = body
             mail.send(msg)
-            result = "email sent"
-        return render_template("send-mail.html",  result=result)
+            result = "The email sent successfully."
+        return render_template("send-mail.html",  result = result)
     except Exception as e:
         return render_template("404.html", exception = e)
 
