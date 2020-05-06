@@ -10,3 +10,4 @@ passlib
 flask-wtf
 wtforms
 pygal
+Flask-Mail

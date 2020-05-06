@@ -1,6 +1,7 @@
 print(f"__file__={__file__:<35} | __name__={__name__:<20} | __package__={str(__package__):<20}")
 
 from flask import Flask, request, jsonify, render_template, flash, redirect, url_for, session, Markup, send_file
+from flask_mail import Mail, Message
 from passlib.hash import sha256_crypt
 from functools import wraps
 import bs4 as bs
@@ -86,9 +87,9 @@ def exec_table_operation(table, operation):
         return str(e)
 
 # Use dynamic url to return anypath not being routed to homepage
-@app.route("/<path:anypath>/")
+#@app.route("/<path:anypath>/")
 @app.route("/")
-def homepage(anypath = "/"):
+def homepage():
     return render_template("main.html",  message=Markup("<h1>Welcome to PD homepage !</h1>"))
 
 @app.route("/managedb", methods = ["GET", "POST"])
@@ -159,7 +160,39 @@ def logout():
     except Exception as e:
         return render_template("404.html", exception = e)
 
-@app.route('/pygalexample/')
+@app.route("/send-mail/", methods = ["GET", "POST"])
+@privilege_login_required(None)
+def send_mail():
+    try:
+        result = None
+        if request.form and request.method == "POST":
+            server = request.form.get("server")
+            username = request.form.get("username")
+            password = request.form.get("password")
+            from_ = request.form.get("from")
+            to_list = request.form.get("to").split(";")
+            title = request.form.get("title")
+            body = request.form.get("body")
+
+            app.config.update(
+                DEBUG=True,
+                #EMAIL SETTINGS
+                MAIL_SERVER = server,
+                MAIL_PORT = 465,
+                MAIL_USE_SSL = True,
+                MAIL_USERNAME = username,
+                MAIL_PASSWORD = password
+            )
+            mail = Mail(app)
+            msg = Message(title, sender = from_, recipients = to_list)
+            msg.body = body
+            mail.send(msg)
+            result = "email sent"
+        return render_template("send-mail.html",  result=result)
+    except Exception as e:
+        return render_template("404.html", exception = e)
+
+@app.route("/pygalexample/")
 def pygalexample():
     try:
         graph = pygal.Line()

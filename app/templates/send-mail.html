@@ -1,0 +1,36 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+  <div class="container-fluid" style="max-width=80%">
+    {% if session['logged_in'] %}
+      <br>
+      <form action="" class="form" method="post" id="emailform">
+        <dl>
+          <dt>Mailer:
+          <dd><input class="form-control" id="server" name="server" type="text" placeholder="Server" minlength="3" maxlength="50" required></dd>
+          <dd><input class="form-control" id="username" name="username" type="text" placeholder="Username" minlength="5" maxlength="30" required></dd>
+          <dd><input class="form-control" id="password" name="password" type="password" placeholder="Password" required></dd>
+          <dt>Content:
+          <dd><input class="form-control" id="from" name="from" type="text" placeholder="From" minlength="5" maxlength="50" required></dd>
+          <dd><input class="form-control" id="to" name="to" type="text" placeholder="To" minlength="5" maxlength="50" required></dd>
+          <dd><input class="form-control" id="title" name="title" type="text" placeholder="Title" required></dd>
+          <dd><textarea class="form-control" rows="5" id="body" name="body" placeholder="Body" form="emailform"></textarea> </dd>
+        </dl>
+        <input class="btn btn-primary" type="submit" value="Send">
+        <br>
+      </form>
+    {% else %}
+      <p>You must be <a href="/login/">logged in</a> to send email !</p>
+    {% endif %}
+
+    <br>
+
+    {% if result %}
+      <h5> Result </h5>
+      <p> {{ result }} </p>
+    {% endif %}
+  </div>
+
+{% endblock %}
+ 
