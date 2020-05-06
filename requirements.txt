@@ -11,3 +11,5 @@ flask-wtf
 wtforms
 pygal
 Flask-Mail
+plotly
+pandas-datareader

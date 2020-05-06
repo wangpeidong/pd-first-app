@@ -7,8 +7,12 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 import bs4 as bs
 import urllib.request
-import gc, os
+import gc, os, json
 import pygal
+import plotly
+import plotly.graph_objs as go
+import pandas_datareader.data as web
+import datetime
 
 app = Flask(__name__)
 app.secret_key = b'!@#$%^&*()'
@@ -221,18 +225,31 @@ def send_mail():
     except Exception as e:
         return render_template("404.html", exception = e)
 
-@app.route("/pygalexample/")
-def pygalexample():
+@app.route("/graph-example/")
+def graph_example():
     try:
+        start = datetime.datetime(2020, 1, 1)
+        end = datetime.datetime.now()
+        df = web.DataReader("^GSPC", "yahoo", start, end)
+        df.reset_index(inplace = True)
+        df.set_index("Date", inplace = True)
+
         graph = pygal.Line()
-        graph.title = '% Change Coolness of programming languages over time.'
-        graph.x_labels = ['2011','2012','2013','2014','2015','2016']
-        graph.add('Python',  [15, 31, 89, 200, 356, 900])
-        graph.add('Java',    [15, 45, 76, 80,  91,  95])
-        graph.add('C++',     [5,  51, 54, 102, 150, 201])
-        graph.add('All others combined!',  [5, 15, 21, 55, 92, 105])
+        graph.title = "^GSPC"
+        graph.x_labels = df.index.tolist()
+        graph.add("Open", df["Open"].tolist())
+        graph.add("High", df["High"].tolist())
+        graph.add("Low", df["Low"].tolist())
+        graph.add("Close", df["Adj Close"].tolist())
         graph_data = graph.render_data_uri()
-        return render_template("graphing.html", graph_data = graph_data)
+
+        layout = go.Layout(title_text = "^GSPC")
+        trace1 = go.Scatter(x = df.index, y = df["Adj Close"], name = "Adj Close")
+        data = [trace1]
+        fig = go.Figure(data = data, layout = layout)
+        fig_data = json.dumps(fig, cls = plotly.utils.PlotlyJSONEncoder)
+
+        return render_template("graphing.html", fig_data = fig_data, graph_data = graph_data)
     except Exception as e:
         return(str(e))
 
