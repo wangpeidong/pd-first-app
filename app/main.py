@@ -107,7 +107,7 @@ def data_regression(symbol):
     clf = LinearRegression() # Classifier
     clf.fit(X_train, y_train)
     confidence = clf.score(X_test, y_test)
-    print(f'confidence: {confidence}')
+    app.logger.info(f'confidence: {confidence}')
 
     last_col = len(df.columns)
     df['Forecast'] = np.nan
@@ -165,7 +165,7 @@ def managedb():
             result = exec_table_operation(form.tablename.data, form.operation.data)
             return render_template("managedb.html", form = form, result = result)
         if form.errors:
-            print(f"error in managedb: {form.errors}")
+            app.logger.error(f"error in managedb: {form.errors}")
         return render_template("managedb.html", form = form, result = None)
     except Exception as e:
         return render_template("404.html", exception = e)
@@ -195,7 +195,7 @@ def login():
         if request.form:
             name = request.form.get("username")
             password = request.form.get("password")
-            print(f"username: {name} password: {password}")
+            app.logger.info(f"username: {name} password: {password}")
 
             user = UserModel.query.filter_by(name = name).first()
             if (user and sha256_crypt.verify(password, user.password)):
@@ -285,9 +285,11 @@ def send_mail():
 def forecast_stock():
     try:
         symbol = request.args.get('symbol', 0, type = str)
-        print(f"stock sybmol: {symbol}")
+        app.logger.debug(f"stock sybmol: {symbol}")
         df = data_regression(symbol)
-        layout = go.Layout(title_text = f"Plotly Graph ({symbol})", title_x = 0.5)
+        layout = go.Layout(title_text = f"Plotly Graph ({symbol})", title_x = 0.5, plot_bgcolor = 'snow', paper_bgcolor = 'white',
+            legend = dict(x = 0, y = 1, traceorder = 'normal', font = dict(size = 8), bgcolor='snow')
+        )
         trace1 = go.Scatter(x = df.index, y = df["Adj Close"], name = "Adj Close")
         trace2 = go.Scatter(x = df.index, y = df["Forecast"], name = "Forecast")
         data = [trace1, trace2]
@@ -375,7 +377,7 @@ def search():
     try:
         if request.form and request.method == "POST":
             url = ("http://www.google.com/search?q=" + urllib.parse.quote(request.form.get("search"))) #in case search string is unicode, covert it to ascii
-            print(url)
+            app.logger.info(url)
             # space is not valid character in URL, needs to be coverted to %20,
             # for example https://www.google.com/search?q=python%20w3school
             url = urllib.request.Request(url.replace(" ", "%20"), headers = {"User-Agent": "Mozilla/5.0"})
