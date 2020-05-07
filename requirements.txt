@@ -13,3 +13,5 @@ pygal
 Flask-Mail
 plotly
 pandas-datareader
+numpy
+scikit-learn
