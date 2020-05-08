@@ -6,18 +6,24 @@
     {% if session['logged_in'] %}
       <br>
       <form action="" class="form" method="post" id="emailform">
-        <dl>
-          <dt>Mailer:
-          <dd><input class="form-control" id="server" name="server" type="text" placeholder="Server" minlength="3" maxlength="50" required></dd>
-          <dd><input class="form-control" id="username" name="username" type="text" placeholder="Username" minlength="5" maxlength="30" required></dd>
-          <dd><input class="form-control" id="password" name="password" type="password" placeholder="Password" required></dd>
-          <dt>Content:
-          <dd><input class="form-control" id="from" name="from" type="text" placeholder="From" minlength="5" maxlength="50" required></dd>
-          <dd><input class="form-control" id="to" name="to" type="text" placeholder="To" minlength="5" maxlength="50" required></dd>
-          <dd><input class="form-control" id="title" name="title" type="text" placeholder="Title" required></dd>
-          <dd><textarea class="form-control" rows="5" id="body" name="body" placeholder="Body" form="emailform"></textarea> </dd>
-        </dl>
-        <input class="btn btn-primary" type="submit" value="Send">
+        {% if session['mailer_set'] %}
+          <dl>
+            <dt>Content:
+            <dd><input class="form-control" id="to" name="to" type="text" placeholder="To" minlength="5" maxlength="50" required></dd>
+            <dd><input class="form-control" id="title" name="title" type="text" placeholder="Title" required></dd>
+            <dd><textarea class="form-control" rows="5" id="body" name="body" placeholder="Body" form="emailform"></textarea> </dd>
+          </dl>
+          <input class="btn btn-primary" type="submit" value="Send">
+        {% else %}
+          <dl>
+            <dt>Mailer:
+            <dd><input class="form-control" id="server" name="server" type="text" placeholder="Server" minlength="3" maxlength="50" required></dd>
+            <dd><input class="form-control" id="username" name="username" type="text" placeholder="Username" minlength="5" maxlength="30" required></dd>
+            <dd><input class="form-control" id="password" name="password" type="password" placeholder="Password" required></dd>
+            <dd><input class="form-control" id="from" name="from" type="text" placeholder="From" minlength="5" maxlength="50" required></dd>
+          </dl>
+          <input class="btn btn-primary" type="submit" value="Submit">
+          {% endif %}
         <br>
       </form>
     {% else %}

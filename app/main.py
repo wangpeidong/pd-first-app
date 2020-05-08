@@ -18,6 +18,7 @@ from .apputilities import privilege_login_required, set_mailer, get_files_list, 
 
 app = Flask(__name__)
 app.secret_key = b'!@#$%^&*()'
+mailer = None
 
 from .dbm import connect_db, DBManagementForm
 connect_db(app)
@@ -171,21 +172,29 @@ def upload_file():
 @privilege_login_required(None)
 def send_mail():
     try:
+        global mailer
         result = None
         if request.form and request.method == "POST":
-            server = request.form.get("server")
-            username = request.form.get("username")
-            password = request.form.get("password")
-            from_ = request.form.get("from")
-            to_list = request.form.get("to").split(";")
-            title = request.form.get("title")
-            body = request.form.get("body")
+            if "mailer_set" in session:
+                to_list = request.form.get("to").split(";")
+                title = request.form.get("title")
+                body = request.form.get("body")
+                msg = Message(title, sender = session["from"], recipients = to_list)
+                msg.body = body
+                mailer.send(msg)
+                result = "The email sent successfully."
+            else:
+                server = request.form.get("server")
+                username = request.form.get("username")
+                password = request.form.get("password")
+                from_ = request.form.get("from")
+                mailer = set_mailer(app, server, username, password)
+                session["mailer_set"] = True
+                # It seems session cannot store object
+                #session["mailer"] = mailer
+                session["from"] = from_
+                result = "The mailer is ready."
 
-            mailer = set_mailer(app, server, username, password)
-            msg = Message(title, sender = from_, recipients = to_list)
-            msg.body = body
-            mailer.send(msg)
-            result = "The email sent successfully."
         return render_template("send-mail.html",  result = result)
     except Exception as e:
         return render_template("404.html", exception = e)
@@ -194,7 +203,7 @@ def send_mail():
 def forecast_stock():
     try:
         symbol = request.args.get('symbol', 0, type = str)
-        
+
         confidence, df = data_regression(source_stock_price(symbol))
         app.logger.info(f'confidence: {confidence}')
 
