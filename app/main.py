@@ -7,17 +7,14 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 import bs4 as bs
 import urllib.request
-import gc, os, json
+import gc, json
 import pygal
 import plotly
 import plotly.graph_objs as go
-import pandas_datareader.data as web
 
-import numpy as np
 import datetime
-from sklearn import preprocessing, svm
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+
+from .apputilities import privilege_login_required, set_mailer, get_files_list, source_stock_price, data_regression 
 
 app = Flask(__name__)
 app.secret_key = b'!@#$%^&*()'
@@ -25,28 +22,9 @@ app.secret_key = b'!@#$%^&*()'
 from .dbm import connect_db, DBManagementForm
 connect_db(app)
 
+# BookModel, UserModel depend on app, can only be imported after app instantiated
 from .bookmodel import BookModel
 from .usermodel import UserModel
-
-# Define decorator/wrapper
-def privilege_login_required(privilege):
-    def login_required(f):
-        @wraps(f)
-        def wrap(*args, **kwargs):
-            if privilege:
-                if "username" in session and privilege == session["username"]:
-                    return f(*args, **kwargs)
-                else:
-                    flash("You must login with privilege first !")
-                    return redirect(url_for("homepage"))
-            else:
-                if "logged_in" in session:
-                    return f(*args, **kwargs)
-                else:
-                    flash("You must login first !")
-                    return redirect(url_for("homepage"))
-        return wrap
-    return login_required
 
 def add_book_to_db(name, author, published):
     try:
@@ -69,66 +47,6 @@ def add_user_to_db(name, password, email):
     )
     user.add_to_db()
     gc.collect()
-
-def get_files_list():
-    files = []
-    # r=root, d=directories, f=files
-    for r, d, f in os.walk(app.root_path):
-        for file in f:
-            # strip app.root_path 
-            files.append(os.path.join(r, file).split(app.root_path, 1)[1])
-    return files
-
-def data_regression(symbol):
-    start = datetime.datetime(2015, 1, 1)
-    end = datetime.datetime.now()
-    df = web.DataReader(symbol, "yahoo", start, end)
-    df.reset_index(inplace = True)
-    df.set_index("Date", inplace = True)
-
-    df['HL_PCT'] = (df['High'] - df['Low']) / df['Adj Close'] * 100.0
-    df['PCT_change'] = (df['Adj Close'] - df['Open']) / df['Open'] * 100.0
-    df = df[['Adj Close', 'HL_PCT', 'PCT_change', 'Volume']]
-
-    forecast_col = 'Adj Close'
-    df.fillna(value = -99999, inplace = True)
-    forecast_out = 10 # 10 days
-    df['label'] = df[forecast_col].shift(-forecast_out)
-
-    X = np.array(df.drop(['label'], 1))
-    X = preprocessing.scale(X)
-    X_lately = X[-forecast_out:]
-    X_2nd_lately = X[-forecast_out:] 
-    X = X[:-forecast_out * 2] # Feature
-    y = np.array(df['label'][:-forecast_out * 2]) # Label
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
-    #clf = svm.SVR()
-    clf = LinearRegression() # Classifier
-    clf.fit(X_train, y_train)
-    confidence = clf.score(X_test, y_test)
-    app.logger.info(f'confidence: {confidence}')
-
-    last_col = len(df.columns)
-    df['Forecast'] = np.nan
-
-    # Comparing set with Adj Close using 2nd X_lately period feature
-    comparing_set = clf.predict(X_2nd_lately) 
-    for idx, val in enumerate(comparing_set):
-        df.iloc[-forecast_out + idx, last_col] = val
-
-    # Future set based on X_lately period feature
-    forecast_set = clf.predict(X_lately)
-    last_date = df.iloc[-1].name
-    last_unix = last_date.timestamp()
-    one_day = 86400 # seconds in a day
-    next_unix = last_unix + one_day
-    for val in forecast_set:
-        next_date = datetime.datetime.fromtimestamp(next_unix)
-        next_unix += 86400
-        df.loc[next_date, 'Forecast'] = val
-
-    return df
 
 tables = {'book': BookModel, 'user': UserModel}    
 def exec_table_operation(table, operation):
@@ -263,19 +181,10 @@ def send_mail():
             title = request.form.get("title")
             body = request.form.get("body")
 
-            app.config.update(
-                DEBUG=True,
-                #EMAIL SETTINGS
-                MAIL_SERVER = server,
-                MAIL_PORT = 465,
-                MAIL_USE_SSL = True,
-                MAIL_USERNAME = username,
-                MAIL_PASSWORD = password
-            )
-            mail = Mail(app)
+            mailer = set_mailer(app, server, username, password)
             msg = Message(title, sender = from_, recipients = to_list)
             msg.body = body
-            mail.send(msg)
+            mailer.send(msg)
             result = "The email sent successfully."
         return render_template("send-mail.html",  result = result)
     except Exception as e:
@@ -285,8 +194,10 @@ def send_mail():
 def forecast_stock():
     try:
         symbol = request.args.get('symbol', 0, type = str)
-        app.logger.debug(f"stock sybmol: {symbol}")
-        df = data_regression(symbol)
+        
+        confidence, df = data_regression(source_stock_price(symbol))
+        app.logger.info(f'confidence: {confidence}')
+
         layout = go.Layout(title_text = f"Plotly Graph ({symbol})", title_x = 0.5, plot_bgcolor = 'snow', paper_bgcolor = 'white',
             legend = dict(x = 0, y = 1, traceorder = 'normal', font = dict(size = 8), bgcolor='snow')
         )
@@ -306,12 +217,10 @@ def data_science():
 @app.route("/graph-example/")
 def graph_example():
     try:
-        start = datetime.datetime(2020, 1, 1)
-        end = datetime.datetime.now()
-        df = web.DataReader("^GSPC", "yahoo", start, end)
-        df.reset_index(inplace = True)
-        df.set_index("Date", inplace = True)
+        df = source_stock_price("^GSPC", datetime.datetime(2020, 1, 1))
 
+        # pygal does not draw when datetime is 2015, seems 
+        # it does not work with many data.
         graph = pygal.Line(human_readable = True)
         graph.title = "Pygal Graph (^GSPC)"
         graph.x_labels = df.index.tolist()
@@ -346,7 +255,7 @@ def dashboard():
             topic_dict["Book"].append([book.name, book.author, book.published])
         for user in users:
             topic_dict["User"].append([user.name, user.email, user.password, user.role, user.setting, user.tracking])
-        topic_dict["File"] = get_files_list()
+        topic_dict["File"] = get_files_list(app.root_path)
 
         return render_template("dashboard.html", topic_dict = topic_dict)
     except Exception as e:
@@ -407,6 +316,9 @@ def add_book():
     author = request.args.get("author")
     published = request.args.get("published")
     return add_book_to_db(name, author, published)
+
+from .bookmodel import BookModel
+from .usermodel import UserModel
 
 @app.route("/getalluser/")
 def get_all_user():
