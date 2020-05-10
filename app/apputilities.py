@@ -99,7 +99,58 @@ def data_regression(df):
     next_unix = last_unix + one_day
     for val in forecast_set:
         next_date = datetime.datetime.fromtimestamp(next_unix)
+        # exclude weekend
+        while next_date.weekday() > 4:
+            next_unix += 86400
+            next_date = datetime.datetime.fromtimestamp(next_unix)
+
         next_unix += 86400
         df.loc[next_date, 'Forecast'] = val
 
     return confidence, df
+
+def add_range_button(fig):
+    # centered title, left aligned by default
+    fig.update_layout(xaxis = dict(
+                    rangeselector = dict(
+                        buttons = list([
+                            dict(count = 5,
+                                 label = '1w',
+                                 step = 'day',
+                                 stepmode = 'backward'),
+                            dict(count = 10,
+                                 label = '2w',
+                                 step = 'day',
+                                 stepmode = 'backward'),
+                            dict(count = 1,
+                                 label = '1m',
+                                 step = 'month',
+                                 stepmode = 'backward'),
+                            dict(count = 3,
+                                 label = '3m',
+                                 step = 'month',
+                                 stepmode = 'backward'),
+                            dict(count = 6,
+                                 label = '6m',
+                                 step = 'month',
+                                 stepmode = 'backward'),
+                            dict(count = 1,
+                                 label = 'YTD',
+                                 step = 'year',
+                                 stepmode = 'todate'),
+                            dict(count = 1,
+                                 label = '1y',
+                                 step = 'year',
+                                 stepmode = 'backward'),
+                            dict(step = 'all')
+                        ])
+                    ),
+                    rangeslider_visible = False
+    ))
+    # rangebreak does not work with update_layout somehow
+    fig.update_xaxes(
+        rangebreaks = [
+                dict(bounds = ['sat', 'mon'])
+            ]
+    )
+    return fig

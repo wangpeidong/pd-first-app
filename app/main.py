@@ -14,7 +14,7 @@ import plotly.graph_objs as go
 
 import datetime
 
-from .apputilities import privilege_login_required, set_mailer, get_files_list, source_stock_price, data_regression 
+from .apputilities import privilege_login_required, set_mailer, get_files_list, source_stock_price, data_regression, add_range_button
 
 app = Flask(__name__)
 app.secret_key = b'!@#$%^&*()'
@@ -207,13 +207,12 @@ def forecast_stock():
         confidence, df = data_regression(source_stock_price(symbol))
         app.logger.info(f'confidence: {confidence}')
 
-        layout = go.Layout(title_text = f"Plotly Graph ({symbol})", title_x = 0.5, plot_bgcolor = 'snow', paper_bgcolor = 'white',
+        layout = go.Layout(title_text = f"Plotly Graph ({symbol})", title_x = 0.5, plot_bgcolor = 'snow', paper_bgcolor = 'white', height = 800,
             legend = dict(x = 0, y = 1, traceorder = 'normal', font = dict(size = 8), bgcolor='snow')
         )
         trace1 = go.Scatter(x = df.index, y = df["Adj Close"], name = "Adj Close")
         trace2 = go.Scatter(x = df.index, y = df["Forecast"], name = "Forecast")
-        data = [trace1, trace2]
-        fig = go.Figure(data = data, layout = layout)
+        fig = add_range_button(go.Figure(data = [trace1, trace2], layout = layout))
         fig_data = json.dumps(fig, cls = plotly.utils.PlotlyJSONEncoder)
         return fig_data
     except Exception as e:
