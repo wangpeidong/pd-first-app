@@ -73,9 +73,9 @@ def data_regression(df):
     X = np.array(df.drop(['label'], 1))
     X = preprocessing.scale(X)
     X_lately = X[-forecast_out:]
-    X_2nd_lately = X[-forecast_out:] 
-    X = X[:-forecast_out * 2] # Feature
-    y = np.array(df['label'][:-forecast_out * 2]) # Label
+    X_2nd_lately = X[-2*forecast_out:-forecast_out] 
+    X = X[:-forecast_out*2] # Feature
+    y = np.array(df['label'][:-forecast_out*2]) # Label
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
     #clf = svm.SVR()
